@@ -62,3 +62,7 @@ class TaskRead(BaseModel):
     assignee: UserRead | None
     created_at: datetime
     updated_at: datetime
+
+
+class TaskStatusUpdate(BaseModel):
+    status: TaskStatus

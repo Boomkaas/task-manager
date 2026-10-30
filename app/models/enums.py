@@ -13,3 +13,6 @@ class TaskPriority(StrEnum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
+
+
+ACTIVE_STATUSES = {TaskStatus.IN_PROGRESS, TaskStatus.REVIEW}

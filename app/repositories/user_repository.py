@@ -17,6 +17,11 @@ class UserRepository:
     async def get_by_username(self, username: str) -> User | None:
         return await self.session.scalar(select(User).where(User.username == username))
 
+    async def lock_by_id(self, user_id: int) -> None:
+        await self.session.execute(
+            select(User.id).where(User.id == user_id).with_for_update()
+        )
+
     async def get_all(self) -> list[User]:
         users = await self.session.scalars(select(User).order_by(User.id))
         return list(users)
