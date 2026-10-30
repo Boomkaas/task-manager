@@ -3,13 +3,19 @@ from fastapi import APIRouter, Depends, Query
 from app.api.deps import CurrentUser, DbSession, get_current_user
 from app.models import Comment
 from app.schemas.comment import CommentCreate, CommentRead
+from app.schemas.error import get_error_responses
 from app.schemas.pagination import Page
 from app.services.comment_service import CommentService
 
 router = APIRouter(prefix="/tasks/{task_id}/comments", tags=["comments"])
 
 
-@router.post("", response_model=CommentRead, status_code=201)
+@router.post(
+    "",
+    response_model=CommentRead,
+    status_code=201,
+    responses=get_error_responses(404),
+)
 async def create_comment(
     task_id: int,
     comment_data: CommentCreate,
@@ -21,7 +27,11 @@ async def create_comment(
     )
 
 
-@router.get("", dependencies=[Depends(get_current_user)])
+@router.get(
+    "",
+    dependencies=[Depends(get_current_user)],
+    responses=get_error_responses(404),
+)
 async def get_comments(
     task_id: int,
     session: DbSession,

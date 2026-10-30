@@ -6,7 +6,7 @@ from app.schemas.user import UserRead
 
 
 class CommentCreate(BaseModel):
-    text: str = Field(min_length=1)
+    text: str = Field(min_length=1, examples=["Looks good, moving to review"])
 
 
 class CommentRead(BaseModel):
