@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.api.routes import auth, tasks, users
+from app.api.routes import auth, comments, tasks, users
 from app.core.exceptions import AppError, handle_app_error
 
 app = FastAPI(title="Task Management API")
@@ -10,6 +10,7 @@ app.add_exception_handler(AppError, handle_app_error)
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(tasks.router)
+app.include_router(comments.router)
 
 
 @app.get("/health")
