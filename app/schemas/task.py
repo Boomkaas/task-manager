@@ -18,11 +18,11 @@ def check_deadline_in_future(deadline: datetime | None) -> datetime | None:
 
 
 class TaskCreate(BaseModel):
-    title: str = Field(min_length=1, max_length=200)
-    description: str = ""
+    title: str = Field(min_length=1, max_length=200, examples=["Write README"])
+    description: str = Field(default="", examples=["Describe how to run the project"])
     priority: TaskPriority = TaskPriority.MEDIUM
-    assignee_id: int | None = None
-    deadline: datetime | None = None
+    assignee_id: int | None = Field(default=None, examples=[1])
+    deadline: datetime | None = Field(default=None, examples=["2030-01-31T18:00:00Z"])
 
     @field_validator("deadline")
     @classmethod

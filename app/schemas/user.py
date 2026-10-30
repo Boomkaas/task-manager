@@ -4,9 +4,9 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class UserCreate(BaseModel):
-    email: EmailStr
-    username: str = Field(min_length=3, max_length=50)
-    password: str = Field(min_length=8, max_length=72)
+    email: EmailStr = Field(examples=["anna@example.com"])
+    username: str = Field(min_length=3, max_length=50, examples=["anna"])
+    password: str = Field(min_length=8, max_length=72, examples=["secret123"])
 
 
 class UserRead(BaseModel):

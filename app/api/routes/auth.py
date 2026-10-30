@@ -6,18 +6,24 @@ from fastapi.security import OAuth2PasswordRequestForm
 from app.api.deps import DbSession
 from app.models import User
 from app.schemas.auth import Token
+from app.schemas.error import get_error_responses
 from app.schemas.user import UserCreate, UserRead
 from app.services.auth_service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/register", response_model=UserRead, status_code=201)
+@router.post(
+    "/register",
+    response_model=UserRead,
+    status_code=201,
+    responses=get_error_responses(409),
+)
 async def register(user_data: UserCreate, session: DbSession) -> User:
     return await AuthService(session).register(user_data)
 
 
-@router.post("/login")
+@router.post("/login", responses=get_error_responses(401))
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], session: DbSession
 ) -> Token:
