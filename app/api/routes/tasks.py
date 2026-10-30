@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from app.api.deps import CurrentUser, DbSession, get_current_user
 from app.models import Task
-from app.schemas.task import TaskCreate, TaskRead, TaskUpdate
+from app.schemas.task import TaskCreate, TaskRead, TaskStatusUpdate, TaskUpdate
 from app.services.task_service import TaskService
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
@@ -27,6 +27,18 @@ async def update_task(
     task_id: int, task_data: TaskUpdate, session: DbSession, current_user: CurrentUser
 ) -> Task:
     return await TaskService(session).update_task(task_id, task_data, current_user)
+
+
+@router.patch("/{task_id}/status", response_model=TaskRead)
+async def change_task_status(
+    task_id: int,
+    status_data: TaskStatusUpdate,
+    session: DbSession,
+    current_user: CurrentUser,
+) -> Task:
+    return await TaskService(session).change_status(
+        task_id, status_data.status, current_user
+    )
 
 
 @router.delete("/{task_id}", status_code=204)
