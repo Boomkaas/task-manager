@@ -71,13 +71,13 @@ class TaskRepository:
         rows = await self.session.execute(
             select(Task.status, func.count()).group_by(Task.status)
         )
-        return dict(rows.tuples().all())
+        return dict(rows.all())
 
     async def count_by_priority(self) -> dict[TaskPriority, int]:
         rows = await self.session.execute(
             select(Task.priority, func.count()).group_by(Task.priority)
         )
-        return dict(rows.tuples().all())
+        return dict(rows.all())
 
     async def add(self, task: Task) -> Task:
         self.session.add(task)
