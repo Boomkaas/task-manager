@@ -29,6 +29,15 @@ pip install -r requirements-dev.txt
 pytest
 ```
 
+E2E tests send real HTTP requests to the app started with Docker Compose. They are skipped by default.
+
+```bash
+docker compose up -d --build
+pytest -m e2e
+```
+
+The URL can be changed with `E2E_BASE_URL`, default is `http://localhost:8000`.
+
 Lint and format:
 
 ```bash
