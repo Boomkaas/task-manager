@@ -4,10 +4,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import BusinessRuleError, ForbiddenError, NotFoundError
 from app.models import Task, User
-from app.models.enums import ACTIVE_STATUSES, TaskStatus
+from app.models.enums import (
+    ACTIVE_STATUSES,
+    CLOSED_STATUSES,
+    TaskPriority,
+    TaskStatus,
+)
 from app.repositories.task_repository import TaskRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.pagination import Page
+from app.schemas.stats import StatsRead
 from app.schemas.task import TaskCreate, TaskListParams, TaskRead, TaskUpdate
 
 ALLOWED_TRANSITIONS = {
@@ -19,7 +25,6 @@ ALLOWED_TRANSITIONS = {
 }
 MAX_ACTIVE_TASKS = 10
 
-CLOSED_STATUSES = {TaskStatus.DONE, TaskStatus.CANCELLED}
 ASSIGNEE_LOCKED_STATUSES = {TaskStatus.REVIEW, TaskStatus.DONE}
 NOT_DELETABLE_STATUSES = {TaskStatus.IN_PROGRESS, TaskStatus.REVIEW}
 
@@ -40,6 +45,26 @@ class TaskService:
         tasks = await self.task_repository.get_list(params)
         total = await self.task_repository.count(params)
         return Page[TaskRead].create(tasks, total, params.page, params.size)
+
+    async def get_overdue_tasks(self, page: int, size: int) -> Page[TaskRead]:
+        tasks = await self.task_repository.get_overdue(
+            offset=(page - 1) * size, limit=size
+        )
+        total = await self.task_repository.count_overdue()
+        return Page[TaskRead].create(tasks, total, page, size)
+
+    async def get_stats(self) -> StatsRead:
+        by_status = await self.task_repository.count_by_status()
+        by_priority = await self.task_repository.count_by_priority()
+        return StatsRead(
+            total=await self.task_repository.count_all(),
+            by_status={status: by_status.get(status, 0) for status in TaskStatus},
+            by_priority={
+                priority: by_priority.get(priority, 0) for priority in TaskPriority
+            },
+            overdue=await self.task_repository.count_overdue(),
+            active=await self.task_repository.count_active(),
+        )
 
     async def get_task(self, task_id: int) -> Task:
         task = await self.task_repository.get_by_id(task_id)

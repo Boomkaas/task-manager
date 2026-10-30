@@ -16,3 +16,4 @@ class TaskPriority(StrEnum):
 
 
 ACTIVE_STATUSES = {TaskStatus.IN_PROGRESS, TaskStatus.REVIEW}
+CLOSED_STATUSES = {TaskStatus.DONE, TaskStatus.CANCELLED}
