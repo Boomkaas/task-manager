@@ -1,8 +1,17 @@
-from fastapi import APIRouter, Depends
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, Query
 
 from app.api.deps import CurrentUser, DbSession, get_current_user
 from app.models import Task
-from app.schemas.task import TaskCreate, TaskRead, TaskStatusUpdate, TaskUpdate
+from app.schemas.pagination import Page
+from app.schemas.task import (
+    TaskCreate,
+    TaskListParams,
+    TaskRead,
+    TaskStatusUpdate,
+    TaskUpdate,
+)
 from app.services.task_service import TaskService
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
@@ -13,6 +22,13 @@ async def create_task(
     task_data: TaskCreate, session: DbSession, current_user: CurrentUser
 ) -> Task:
     return await TaskService(session).create_task(task_data, current_user)
+
+
+@router.get("", dependencies=[Depends(get_current_user)])
+async def get_tasks(
+    params: Annotated[TaskListParams, Query()], session: DbSession
+) -> Page[TaskRead]:
+    return await TaskService(session).get_tasks(params)
 
 
 @router.get(
