@@ -7,7 +7,8 @@ from app.models import Task, User
 from app.models.enums import ACTIVE_STATUSES, TaskStatus
 from app.repositories.task_repository import TaskRepository
 from app.repositories.user_repository import UserRepository
-from app.schemas.task import TaskCreate, TaskUpdate
+from app.schemas.pagination import Page
+from app.schemas.task import TaskCreate, TaskListParams, TaskRead, TaskUpdate
 
 ALLOWED_TRANSITIONS = {
     TaskStatus.BACKLOG: {TaskStatus.IN_PROGRESS, TaskStatus.CANCELLED},
@@ -34,6 +35,11 @@ class TaskService:
 
         task = Task(**task_data.model_dump(), author_id=author.id)
         return await self.task_repository.add(task)
+
+    async def get_tasks(self, params: TaskListParams) -> Page[TaskRead]:
+        tasks = await self.task_repository.get_list(params)
+        total = await self.task_repository.count(params)
+        return Page[TaskRead].create(tasks, total, params.page, params.size)
 
     async def get_task(self, task_id: int) -> Task:
         task = await self.task_repository.get_by_id(task_id)

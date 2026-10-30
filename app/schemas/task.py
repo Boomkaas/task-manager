@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -66,3 +67,27 @@ class TaskRead(BaseModel):
 
 class TaskStatusUpdate(BaseModel):
     status: TaskStatus
+
+
+class TaskSortField(StrEnum):
+    CREATED_AT = "created_at"
+    DEADLINE = "deadline"
+    PRIORITY = "priority"
+
+
+class SortOrder(StrEnum):
+    ASC = "asc"
+    DESC = "desc"
+
+
+class TaskListParams(BaseModel):
+    search: str | None = None
+    status: list[TaskStatus] | None = None
+    priority: list[TaskPriority] | None = None
+    assignee_id: list[int] | None = None
+    deadline_from: datetime | None = None
+    deadline_to: datetime | None = None
+    sort_by: TaskSortField | None = None
+    order: SortOrder = SortOrder.ASC
+    page: int = Field(default=1, ge=1)
+    size: int = Field(default=20, ge=1, le=100)
