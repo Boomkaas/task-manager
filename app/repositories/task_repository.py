@@ -1,4 +1,4 @@
-from sqlalchemy import ColumnElement, Select, and_, case, func, or_, select
+from sqlalchemy import ColumnElement, Select, and_, case, func, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Task
@@ -87,6 +87,13 @@ class TaskRepository:
         await self.session.commit()
         await self.session.refresh(task)
         return task
+
+    async def cancel_overdue(self) -> int:
+        result = await self.session.execute(
+            update(Task).where(overdue_condition()).values(status=TaskStatus.CANCELLED)
+        )
+        await self.session.commit()
+        return result.rowcount
 
     async def delete(self, task: Task) -> None:
         await self.session.delete(task)
