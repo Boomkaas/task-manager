@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from app.api.deps import CurrentUser, DbSession, get_current_user
 from app.models import Task
 from app.schemas.pagination import Page
+from app.schemas.stats import StatsRead
 from app.schemas.task import (
     TaskCreate,
     TaskListParams,
@@ -29,6 +30,20 @@ async def get_tasks(
     params: Annotated[TaskListParams, Query()], session: DbSession
 ) -> Page[TaskRead]:
     return await TaskService(session).get_tasks(params)
+
+
+@router.get("/overdue", dependencies=[Depends(get_current_user)])
+async def get_overdue_tasks(
+    session: DbSession,
+    page: int = Query(1, ge=1),
+    size: int = Query(20, ge=1, le=100),
+) -> Page[TaskRead]:
+    return await TaskService(session).get_overdue_tasks(page, size)
+
+
+@router.get("/stats", dependencies=[Depends(get_current_user)])
+async def get_stats(session: DbSession) -> StatsRead:
+    return await TaskService(session).get_stats()
 
 
 @router.get(
